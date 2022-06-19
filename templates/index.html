@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <title>Leaderboard App</title>
+    <style>
+        h1 {
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            background-color: #0d6efd;
+            font-weight: bold;
+            text-align: center;
+            color: white;
+            font-size: 30px;
+            padding: 10px;
+            margin-bottom: 0px;
+        }
+        
+        thead {
+            background-color: #31d2f2;
+        }
+        
+        .ascending {
+            display: none;
+        }
+        
+        .selections {
+            margin: 10px 10px;
+        }
+        
+        .btn-right {
+            float: right;
+            text-align: right;
+        }
+        
+        table {
+            text-align: center;
+        }
+        
+        .txt-left {
+            text-align: left !important;
+        }
+        
+        #alert-suc,
+        #alert-err {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#"><img src="static/OpsTechITLOGO.png" alt="" style="width: 80px;"></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+            <div class="collapse navbar-collapse" id="collapsibleNavbar">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{%url 'admin'%}" id="CM">Leaderboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{%url 'savedRecord'%}" id="CE">Saved Record</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <input type="hidden" id="myVar" name="variable" value="{{ dataSave }}">
+        <br>
+        <div class="alert alert-success" id="alert-suc">
+            <strong>Success!</strong> Data saved successfully.
+        </div>
+        <div class="alert alert-warning" id="alert-err">
+            <strong>Warning!</strong> Data is already saved.
+        </div>
+        <h1>Leaderboard</h1>
+        <div class="selections">
+            <span>Sort by:</span>
+            <button class="btn btn-info" id="ascending">Ascending</button> |
+            <button class="btn btn-info" id="descending">Descending</button>
+        </div>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th class="txt-left">Name</th>
+                    <th>Points</th>
+                    <th>Save into Database</th>
+                </tr>
+            </thead>
+            <tbody class="ascending">
+                {% for x, name, points in ascending_mylist %}
+                <tr>
+                    <td>{{x}}</td>
+                    <td class="txt-left">{{name}}</td>
+                    <td>{{points}}</td>
+                    <form method="post" action="{%url 'insertData'%}" role="form">
+                        {% csrf_token %} {{form}}
+                        <input type="hidden" name="rank" value="{{x}}">
+                        <input type="hidden" name="name" value="{{name}}">
+                        <input type="hidden" name="point" value="{{points}}">
+                        <td><button class="btn btn-success" class="btn-right">Insert</button></td>
+                    </form>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tbody class="descending">
+                {% for x, name, points in descending_mylist %}
+                <tr>
+                    <td>{{x}}</td>
+                    <td class="txt-left">{{name}}</td>
+                    <td>{{points}}</td>
+                    <form method="post" action="{%url 'insertData'%}" role="form">
+                        {% csrf_token %} {{form}}
+                        <input type="hidden" name="rank" value="{{x}}">
+                        <input type="hidden" name="name" value="{{name}}">
+                        <input type="hidden" name="point" value="{{points}}">
+                        <td><button type="submit" class="btn btn-success" class="btn-right">Insert</button></td>
+                    </form>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#ascending").click(function() {
+                console.log("in ass");
+                $(".ascending").show();
+                $(".descending").hide();
+            });
+            $("#descending").click(function() {
+                $(".descending").show();
+                $(".ascending").hide();
+                console.log("in des");
+            });
+            // alrt message as data save or not
+            function delay(delayInms) {
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        resolve(2);
+                    }, delayInms);
+                });
+            }
+
+            async function sample() {
+                console.log('waiting...')
+                let delayres = await delay(2000);
+                $("#alert-err").hide();
+                $("#alert-suc").hide();
+            }
+
+            if ($("#myVar").val() == "success") {
+                $("#alert-suc").show();
+                $("#alert-err").hide();
+                $("#myVar").val("null");
+                sample();
+            } else if ($("#myVar").val() == "yes") {
+                $("#alert-err").show();
+                $("#alert-suc").hide();
+                $("#myVar").val("null");
+                sample();
+            }
+        });
+    </script>
+</body>
+
+</html>
